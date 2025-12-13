@@ -38,7 +38,7 @@ async function connectToDatabase() {
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "*",
+    origin: process.env.FRONTEND_URL || "https://veda-ai-task1-kgkf.vercel.app",
     credentials: true,
   }),
 )
