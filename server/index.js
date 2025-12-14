@@ -38,11 +38,41 @@ async function connectToDatabase() {
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://veda-ai-task1-kgkf.vercel.app",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true)
+
+      const allowedOrigins = [
+        process.env.FRONTEND_URL || "https://veda-ai-task1-kgkf.vercel.app",
+        "http://localhost:5173", // Vite dev server
+        "http://localhost:3000", // Next.js dev server
+      ]
+
+      // Remove trailing slashes for comparison
+      const normalizedOrigin = origin.replace(/\/$/, "")
+      const normalizedAllowed = allowedOrigins.map((o) => o.replace(/\/$/, ""))
+
+      if (normalizedAllowed.includes(normalizedOrigin)) {
+        callback(null, true)
+      } else {
+        callback(new Error("Not allowed by CORS"))
+      }
+    },
     credentials: true,
   }),
 )
 app.use(express.json())
+
+app.get("/", (req, res) => {
+  res.json({
+    message: "Veda AI Task Manager API",
+    version: "1.0.0",
+    endpoints: {
+      health: "/api/health",
+      tasks: "/api/tasks",
+    },
+  })
+})
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
